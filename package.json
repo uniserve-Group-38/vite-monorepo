@@ -1,0 +1,13 @@
+{
+  "name": "uniserve-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/frontend",
+    "packages/backend"
+  ],
+  "scripts": {
+    "dev:backend":  "bun run --filter @uniserve/backend dev",
+    "dev:frontend": "bun run --filter @uniserve/frontend dev",
+    "dev": "bun run dev:backend & bun run dev:frontend"
+  }
+}

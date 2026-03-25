@@ -1,0 +1,73 @@
+src/App.tsx(4,34): error TS2307: Cannot find module '@/providers/better-auth-ui-provider' or its corresponding type declarations.
+src/App.tsx(25,82): error TS2322: Type 'Promise<typeof import("C:/Users/HP/Desktop/uniserve-capstone-project/vite-monorepo/packages/frontend/src/pages/dashboard/conversations/[bookingId]/page")>' is not assignable to type 'Promise<{ default: ComponentType<any>; }>'.
+  Type 'typeof import("C:/Users/HP/Desktop/uniserve-capstone-project/vite-monorepo/packages/frontend/src/pages/dashboard/conversations/[bookingId]/page")' is not assignable to type '{ default: ComponentType<any>; }'.
+    Types of property 'default' are incompatible.
+      Type '({ params, }: { params: Promise<{ bookingId: string; }>; }) => Promise<void>' is not assignable to type 'ComponentType<any>'.
+        Type '({ params, }: { params: Promise<{ bookingId: string; }>; }) => Promise<void>' is not assignable to type 'FunctionComponent<any>'.
+          Type 'Promise<void>' is not assignable to type 'ReactNode | Promise<ReactNode>'.
+            Type 'Promise<void>' is not assignable to type 'ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<...> | Promise<...>'.
+              Type 'Promise<void>' is not assignable to type 'Promise<AwaitedReactNode>'.
+                Type 'void' is not assignable to type 'AwaitedReactNode'.
+src/App.tsx(47,52): error TS2741: Property 'params' is missing in type '{}' but required in type '{ params: Promise<{ path: string; }>; }'.
+src/App.tsx(53,56): error TS2741: Property 'params' is missing in type '{}' but required in type '{ params: { id: string; }; }'.
+src/App.tsx(54,52): error TS2741: Property 'searchParams' is missing in type '{}' but required in type 'PageProps'.
+src/App.tsx(55,56): error TS2741: Property 'params' is missing in type '{}' but required in type '{ params: Promise<{ id: string; }>; }'.
+src/App.tsx(57,49): error TS2741: Property 'params' is missing in type '{}' but required in type '{ params: Promise<{ path: string; }>; }'.
+src/App.tsx(58,54): error TS2741: Property 'params' is missing in type '{}' but required in type '{ params: Promise<{ serviceId: string; }>; }'.
+src/App.tsx(62,59): error TS2741: Property 'params' is missing in type '{}' but required in type '{ params: Promise<{ conversationId: string; }>; }'.
+src/App.tsx(65,69): error TS2741: Property 'params' is missing in type '{}' but required in type '{ params: Promise<{ conversationId: string; }>; }'.
+src/App.tsx(74,47): error TS2741: Property 'searchParams' is missing in type '{}' but required in type '{ searchParams: Promise<SearchParams>; }'.
+src/App.tsx(75,51): error TS2741: Property 'params' is missing in type '{}' but required in type 'PageProps'.
+src/components/category-filter.tsx(15,42): error TS2339: Property 'get' does not exist on type '[URLSearchParams, SetURLSearchParams]'.
+src/components/landing-only-when-guest.tsx(30,33): error TS2304: Cannot find name 'router'.
+src/components/landing/hero.tsx(7,25): error TS2307: Cannot find module '@gsap/react' or its corresponding type declarations.
+src/components/redirect-if-logged-in.tsx(20,33): error TS2304: Cannot find name 'router'.
+src/components/service-search.tsx(14,51): error TS2339: Property 'get' does not exist on type '[URLSearchParams, SetURLSearchParams]'.
+src/components/service-search.tsx(25,16): error TS2304: Cannot find name 'router'.
+src/components/theme-provider.tsx(4,53): error TS2307: Cannot find module 'next-themes' or its corresponding type declarations.
+src/components/ui/sonner.tsx(10,26): error TS2307: Cannot find module 'next-themes' or its corresponding type declarations.
+src/hooks/hooks/useLenis.ts(50,21): error TS2339: Property 'kill' does not exist on type 'typeof _ScrollTrigger'.
+src/hooks/useLenis.ts(50,21): error TS2339: Property 'kill' does not exist on type 'typeof _ScrollTrigger'.
+src/lib/email.ts(1,24): error TS2307: Cannot find module 'resend' or its corresponding type declarations.
+src/lib/generated/prisma.ts(1,26): error TS2307: Cannot find module '@prisma/adapter-pg' or its corresponding type declarations.
+src/lib/lib/email.ts(1,24): error TS2307: Cannot find module 'resend' or its corresponding type declarations.
+src/lib/lib/generated/prisma.ts(1,26): error TS2307: Cannot find module '@prisma/adapter-pg' or its corresponding type declarations.
+src/lib/lib/prisma.ts(2,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+src/lib/lib/prisma.ts(4,26): error TS2307: Cannot find module '@prisma/adapter-pg' or its corresponding type declarations.
+src/lib/lib/pusher.ts(1,20): error TS2307: Cannot find module 'pusher' or its corresponding type declarations.
+src/lib/prisma.ts(2,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+src/lib/prisma.ts(4,26): error TS2307: Cannot find module '@prisma/adapter-pg' or its corresponding type declarations.
+src/lib/pusher.ts(1,20): error TS2307: Cannot find module 'pusher' or its corresponding type declarations.
+src/pages/actions/chat.ts(6,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/admin/applications/page.tsx(3,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/admin/applications/page.tsx(16,37): error TS2551: Property 'serviceProviderApplication' does not exist on type 'PrismaClient<PrismaClientOptions, LogLevel, DefaultArgs>'. Did you mean 'service_provider_application'?
+src/pages/admin/dashboard/page.tsx(17,27): error TS2353: Object literal may only specify known properties, and 'services' does not exist in type 'UserCountOutputTypeSelect<DefaultArgs>'.
+src/pages/admin/dashboard/page.tsx(94,94): error TS2339: Property '_count' does not exist on type '{ id: string; name: string; role: Role; image: string; email: string; emailVerified: boolean; createdAt: Date; updatedAt: Date; phoneNumber: string; location: string; bio: string; }'.
+src/pages/admin/support/[id]/actions.ts(5,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/admin/support/[id]/actions.ts(6,32): error TS2307: Cannot find module 'next/cache' or its corresponding type declarations.
+src/pages/admin/support/[id]/actions.ts(33,21): error TS2339: Property 'adminReply' does not exist on type '{ user: { id: string; name: string; role: Role; image: string; email: string; emailVerified: boolean; createdAt: Date; updatedAt: Date; phoneNumber: string; location: string; bio: string; }; } & { ...; }'.
+src/pages/admin/support/[id]/actions.ts(40,17): error TS2353: Object literal may only specify known properties, and 'adminReply' does not exist in type '(Without<SupportMessageUpdateInput, SupportMessageUncheckedUpdateInput> & SupportMessageUncheckedUpdateInput) | (Without<...> & SupportMessageUpdateInput)'.
+src/pages/admin/support/[id]/reply-form.tsx(35,13): error TS2304: Cannot find name 'router'.
+src/pages/announcements/search-bar.tsx(14,38): error TS2339: Property 'get' does not exist on type '[URLSearchParams, SetURLSearchParams]'.
+src/pages/announcements/search-bar.tsx(15,40): error TS2339: Property 'get' does not exist on type '[URLSearchParams, SetURLSearchParams]'.
+src/pages/bookings/page.tsx(2,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/chat/[conversationId]/page.tsx(5,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/chat/page.tsx(4,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/dashboard/bookings/page.tsx(4,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/dashboard/bookings/page.tsx(50,54): error TS2322: Type '{ bookings: any; currentUserId: string; }' is not assignable to type 'IntrinsicAttributes & ProviderBookingsProps'.
+  Property 'currentUserId' does not exist on type 'IntrinsicAttributes & ProviderBookingsProps'.
+src/pages/dashboard/chat/[conversationId]/page.tsx(3,22): error TS2307: Cannot find module '@/app/chat/[conversationId]/ChatRoom' or its corresponding type declarations.
+src/pages/dashboard/chat/[conversationId]/page.tsx(5,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/dashboard/chat/page.tsx(4,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/dashboard/conversations/[bookingId]/chat-client.tsx(8,29): error TS2307: Cannot find module '@/app/actions/chat' or its corresponding type declarations.
+src/pages/dashboard/page.tsx(2,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/dashboard/services/page.tsx(2,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/dashboard/settings/page.tsx(5,26): error TS2307: Cannot find module 'next-themes' or its corresponding type declarations.
+src/pages/dashboard/transactions/page.tsx(1,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/layout.tsx(1,31): error TS2307: Cannot find module 'next' or its corresponding type declarations.
+src/pages/layout.tsx(2,38): error TS2307: Cannot find module 'next/font/google' or its corresponding type declarations.
+src/pages/layout.tsx(6,34): error TS2307: Cannot find module '@/providers/better-auth-ui-provider' or its corresponding type declarations.
+src/pages/payment/callback/page.tsx(10,34): error TS2339: Property 'get' does not exist on type '[URLSearchParams, SetURLSearchParams]'.
+src/pages/payment/callback/page.tsx(40,18): error TS2304: Cannot find name 'router'.
+src/pages/support/actions.ts(5,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/pages/support/tickets/page.tsx(3,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.

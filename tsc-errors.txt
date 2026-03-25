@@ -1,0 +1,42 @@
+src/controllers/announcement.controller.ts(37,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/application.controller.ts(25,9): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/booking.controller.ts(46,9): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/provider.controller.ts(20,9): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/provider.controller.ts(71,9): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/provider.controller.ts(85,9): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/controllers/service.controller.ts(7,59): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+src/lib/prisma.ts(26,30): error TS2345: Argument of type 'Pool' is not assignable to parameter of type 'Pool | PoolConfig'.
+  Type 'import("C:/Users/HP/Desktop/uniserve-capstone-project/vite-monorepo/node_modules/.bun/@types+pg@8.20.0/node_modules/@types/pg/index").Pool' is not assignable to type 'import("C:/Users/HP/Desktop/uniserve-capstone-project/vite-monorepo/node_modules/.bun/@types+pg@8.11.11/node_modules/@types/pg/index").Pool'.
+    The types of 'options.Client' are incompatible between these types.
+      Type '(new () => import("C:/Users/HP/Desktop/uniserve-capstone-project/vite-monorepo/node_modules/.bun/@types+pg@8.20.0/node_modules/@types/pg/index").ClientBase) | undefined' is not assignable to type '(new () => import("C:/Users/HP/Desktop/uniserve-capstone-project/vite-monorepo/node_modules/.bun/@types+pg@8.11.11/node_modules/@types/pg/index").ClientBase) | undefined'.
+        Type 'new () => import("C:/Users/HP/Desktop/uniserve-capstone-project/vite-monorepo/node_modules/.bun/@types+pg@8.20.0/node_modules/@types/pg/index").ClientBase' is not assignable to type 'new () => import("C:/Users/HP/Desktop/uniserve-capstone-project/vite-monorepo/node_modules/.bun/@types+pg@8.11.11/node_modules/@types/pg/index").ClientBase'.
+          Construct signature return types 'ClientBase' and 'ClientBase' are incompatible.
+            The types returned by 'connect()' are incompatible between these types.
+              Type 'Promise<ClientBase>' is not assignable to type 'Promise<void>'.
+                Type 'ClientBase' is not assignable to type 'void'.
+src/repositories/application.repository.ts(11,12): error TS2551: Property 'serviceProviderApplication' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'service_provider_application'?
+src/repositories/application.repository.ts(21,12): error TS2551: Property 'serviceProviderApplication' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'service_provider_application'?
+src/repositories/application.repository.ts(27,12): error TS2551: Property 'serviceProviderApplication' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'service_provider_application'?
+src/services/payment.service.ts(47,10): error TS18046: 'paystackData' is of type 'unknown'.
+src/services/payment.service.ts(56,26): error TS18046: 'paystackData' is of type 'unknown'.
+src/services/payment.service.ts(63,25): error TS18046: 'paystackData' is of type 'unknown'.
+src/services/payment.service.ts(64,18): error TS18046: 'paystackData' is of type 'unknown'.
+src/services/payment.service.ts(74,10): error TS18046: 'paystackData' is of type 'unknown'.
+src/services/payment.service.ts(81,15): error TS18046: 'paystackData' is of type 'unknown'.
+src/services/payment.service.ts(82,15): error TS18046: 'paystackData' is of type 'unknown'.
+src/services/upload.service.ts(11,39): error TS2322: Type 'Buffer<ArrayBufferLike>' is not assignable to type 'BlobPart'.
+  Type 'Buffer<ArrayBufferLike>' is not assignable to type 'Blob | Uint8Array<ArrayBuffer> | DataView<ArrayBuffer>'.
+    Type 'Buffer<ArrayBufferLike>' is not assignable to type 'Uint8Array<ArrayBuffer>'.
+      Types of property 'buffer' are incompatible.
+        Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+          Type 'SharedArrayBuffer' is missing the following properties from type 'ArrayBuffer': resizable, resize, detached, transfer, transferToFixedLength
+src/services/upload.service.ts(31,34): error TS18046: 'data' is of type 'unknown'.
+src/services/upload.service.ts(31,52): error TS18046: 'data' is of type 'unknown'.
+src/services/upload.service.ts(31,71): error TS18046: 'data' is of type 'unknown'.

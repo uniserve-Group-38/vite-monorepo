@@ -1,0 +1,26 @@
+src/components/components/landing/features.tsx(258,27): error TS1005: '>' expected.
+src/components/components/landing/features.tsx(258,28): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/components/provider-services-manager.tsx(191,87): error TS1005: '>' expected.
+src/components/components/provider-services-manager.tsx(191,88): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/components/provider-services-manager.tsx(263,87): error TS1005: '>' expected.
+src/components/components/provider-services-manager.tsx(263,88): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/components/provider-services-manager.tsx(341,173): error TS1005: '>' expected.
+src/components/components/provider-services-manager.tsx(341,174): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/components/service-card.tsx(53,23): error TS1005: '>' expected.
+src/components/components/service-card.tsx(53,24): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/components/service-card.tsx(115,35): error TS1005: '>' expected.
+src/components/components/service-card.tsx(115,36): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/landing/features.tsx(258,27): error TS1005: '>' expected.
+src/components/landing/features.tsx(258,28): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/provider-services-manager.tsx(191,87): error TS1005: '>' expected.
+src/components/provider-services-manager.tsx(191,88): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/provider-services-manager.tsx(263,87): error TS1005: '>' expected.
+src/components/provider-services-manager.tsx(263,88): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/provider-services-manager.tsx(341,173): error TS1005: '>' expected.
+src/components/provider-services-manager.tsx(341,174): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/service-card.tsx(53,23): error TS1005: '>' expected.
+src/components/service-card.tsx(53,24): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/components/service-card.tsx(115,35): error TS1005: '>' expected.
+src/components/service-card.tsx(115,36): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/services/[id]/page.tsx(88,31): error TS1005: '>' expected.
+src/pages/services/[id]/page.tsx(88,32): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?

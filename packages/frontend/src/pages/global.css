@@ -1,0 +1,224 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@daveyplate/better-auth-ui/css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+/* ======================================
+   NEO-BRUTALISM THEME
+   Color Palette: Purple-100 base, Yellow-300, Pink-400, Cyan-300/400, 
+   Lime-300, Orange-300/400, Black borders, White cards
+   ====================================== */
+
+:root {
+  --radius: 0px;
+  /* Neo-brutalism uses sharp corners */
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #e9d5ff;
+  /* purple-200 */
+  --secondary-foreground: #000000;
+  --muted: #f3e8ff;
+  /* purple-100 */
+  --muted-foreground: #374151;
+  --accent: #fde047;
+  /* yellow-300 */
+  --accent-foreground: #000000;
+  --destructive: #ef4444;
+  --border: #000000;
+  --input: #000000;
+  --ring: #000000;
+  --chart-1: #f472b6;
+  --chart-2: #22d3ee;
+  --chart-3: #a3e635;
+  --chart-4: #fbbf24;
+  --chart-5: #c084fc;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #000000;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fde047;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #000000;
+  --sidebar-ring: #000000;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #1a1a1a;
+  --card-foreground: #fafafa;
+  --popover: #1a1a1a;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #0a0a0a;
+  --secondary: #3b0764;
+  --secondary-foreground: #fafafa;
+  --muted: #1a1a1a;
+  --muted-foreground: #a1a1aa;
+  --accent: #eab308;
+  --accent-foreground: #000000;
+  --destructive: #ef4444;
+  --border: #fafafa;
+  --input: #fafafa;
+  --ring: #fafafa;
+  --chart-1: #f472b6;
+  --chart-2: #22d3ee;
+  --chart-3: #a3e635;
+  --chart-4: #fbbf24;
+  --chart-5: #c084fc;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #eab308;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #fafafa;
+  --sidebar-ring: #fafafa;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground min-w-0;
+    font-family: var(--font-geist-sans), 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* Neo-brutalism base styles */
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  /* Hide scrollbar for horizontal scroll */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Neo-brutalism utility classes */
+@layer utilities {
+  .neo-shadow {
+    box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .neo-shadow-sm {
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .neo-shadow-lg {
+    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .neo-shadow-xl {
+    box-shadow: 12px 12px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .neo-shadow-hover {
+    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  .neo-border {
+    border: 4px solid #000000;
+  }
+
+  .neo-border-thick {
+    border: 6px solid #000000;
+  }
+
+  /* Sticker float animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(var(--float-rotate, 12deg)); }
+    50% { transform: translateY(-10px) rotate(var(--float-rotate, 12deg)); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float-reverse {
+    0%, 100% { transform: translateY(0) rotate(var(--float-rotate, -12deg)); }
+    50% { transform: translateY(-8px) rotate(var(--float-rotate, -12deg)); }
+  }
+
+  .animate-float-reverse {
+    animation: float-reverse 2.5s ease-in-out infinite;
+  }
+
+  /* Slide-in animations */
+  @keyframes slide-in-up {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-slide-in-up {
+    animation: slide-in-up 0.6s ease-out forwards;
+  }
+
+  @keyframes slide-in-left {
+    from { opacity: 0; transform: translateX(-50px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.5s ease-out forwards;
+  }
+}

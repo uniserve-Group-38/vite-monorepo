@@ -1,0 +1,6 @@
+[install]
+optional = false
+frozen = false
+
+[install.scopes]
+# Add private registry config here if needed
