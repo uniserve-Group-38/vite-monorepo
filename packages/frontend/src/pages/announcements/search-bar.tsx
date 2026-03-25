@@ -1,6 +1,3 @@
-import { useParams } from "react-router-dom";
-"use client";
-
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTransition } from "react";
 import { Input } from "@/components/ui/input";
@@ -8,7 +5,7 @@ import { Search, X } from "lucide-react";
 
 export default function SearchBar() {
   const navigate = useNavigate();
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
   const currentSearch = searchParams.get("search") || "";

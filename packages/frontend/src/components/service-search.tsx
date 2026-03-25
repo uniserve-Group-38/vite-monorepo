@@ -1,15 +1,11 @@
-
-"use client"
-
 import { Search } from "lucide-react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useDebounce } from "@/hooks/use-debounce"
-import { Input } from "@/components/ui/input"
 
 export function ServiceSearch() {
     const navigate = useNavigate()
-    const searchParams = useSearchParams()
+    const [searchParams] = useSearchParams()
     const searchParamsString = searchParams.toString()
     const [text, setText] = useState(searchParams.get("q") || "")
     const [query] = useDebounce(text, 300)
@@ -22,7 +18,7 @@ export function ServiceSearch() {
             params.delete("q")
         }
         navigate(`/services?${params.toString()}`)
-    }, [query, router, searchParamsString])
+    }, [query, searchParamsString])
 
     return (
         <div className="relative w-full max-w-md my-4">

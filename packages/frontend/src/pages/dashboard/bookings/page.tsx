@@ -1,39 +1,37 @@
-import { auth } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useSession } from "@/lib/auth-client"
 import { ProviderBookings } from "@/components/provider-bookings"
-import { headers } from "next/headers"
+import { Loader2 } from "lucide-react"
 
+export default function BookingsPage() {
+  const navigate = useNavigate()
+  const { data: session, isPending } = useSession()
+  const [bookings, setBookings] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-export const dynamic = "force-dynamic"
+  useEffect(() => {
+    if (isPending) return
+    if (!session?.user) {
+      navigate("/auth/sign-in")
+      return
+    }
 
-export default async function BookingsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+    fetch(`${import.meta.env.VITE_API_URL}/api/provider/bookings`, {
+      credentials: "include",
+    })
+      .then((r) => r.json())
+      .then((d) => { setBookings(Array.isArray(d) ? d : d.bookings ?? []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [session, isPending, navigate])
 
-  if (!session?.user) {
-    window.location.href = "/auth/sign-in"
+  if (isPending || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin" />
+      </div>
+    )
   }
-
-  const userId = session.user.id
-
-  // Fetch bookings where user is the PROVIDER only
-  const bookings = await prisma.booking.findMany({
-    where: {
-      providerId: userId,  // Only bookings where I'm the provider
-    },
-    include: {
-      student: true,
-      service: true,
-      provider: true,
-      conversation: { select: { id: true } },
-      transactions: true,
-    },
-    orderBy: [
-      { status: "desc" },
-      { bookedAt: "desc" },
-    ],
-  })
 
   return (
     <main className="px-3 sm:px-4 py-4 sm:py-6 md:px-10 md:py-10 min-w-0">
@@ -44,10 +42,10 @@ export default async function BookingsPage() {
             My Bookings
           </h1>
           <p className="relative mt-1 sm:mt-2 max-w-xl text-xs sm:text-sm font-medium text-foreground/70">
-            View your bookings - both as student and service provider
+            View your bookings — both as student and service provider
           </p>
         </header>
-        <ProviderBookings bookings={bookings as any} currentUserId={userId} />
+        <ProviderBookings bookings={bookings} currentUserId={session?.user?.id ?? ""} />
       </section>
     </main>
   )

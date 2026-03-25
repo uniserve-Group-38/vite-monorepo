@@ -1,25 +1,37 @@
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
-import { prisma } from "@/lib/prisma"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useSession } from "@/lib/auth-client"
 import { ProviderServicesManager } from "@/components/provider-services-manager"
+import { Loader2 } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+export default function ServicesPage() {
+  const navigate = useNavigate()
+  const { data: session, isPending } = useSession()
+  const [services, setServices] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-export default async function ServicesPage() {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  })
+  useEffect(() => {
+    if (isPending) return
+    if (!session?.user?.id) {
+      navigate("/auth/sign-in")
+      return
+    }
 
-  if (!session?.user?.id) {
-    return <div>Please log in</div>
+    fetch(`${import.meta.env.VITE_API_URL}/api/provider/services`, {
+      credentials: "include",
+    })
+      .then((r) => r.json())
+      .then((d) => { setServices(Array.isArray(d) ? d : d.services ?? []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [session, isPending, navigate])
+
+  if (isPending || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-purple-500" />
+      </div>
+    )
   }
-
-  const services = await prisma.service.findMany({
-    where: {
-      providerId: session.user.id,
-    },
-    orderBy: { createdAt: "desc" },
-  })
 
   return (
     <main className="px-4 py-6 md:px-10 md:py-10">

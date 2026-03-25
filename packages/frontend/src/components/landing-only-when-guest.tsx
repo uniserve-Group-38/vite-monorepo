@@ -1,5 +1,3 @@
-"use client";
-
 import { useSession } from "@/lib/auth-client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -27,7 +25,7 @@ export function LandingOnlyWhenGuest({
         navigate("/services");
       }
     }
-  }, [session?.user, isPending, router]);
+  }, [session?.user, isPending, navigate]);
 
   if (isPending) {
     return null;

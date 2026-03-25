@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { Bar, BarChart, CartesianGrid, XAxis, Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts"
 import { TrendingUp, Users, CheckCircle, Package } from "lucide-react"
@@ -18,12 +16,16 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { BookingStatus } from "@/lib/generated/prisma/client"
-import type { Prisma } from "@/lib/generated/prisma/client"
 
-type BookingWithRelations = Prisma.BookingGetPayload<{
-  include: { student: true, service: true }
-}>
+const BookingStatus = { PENDING: "PENDING", ATTENDED: "ATTENDED" } as const
+type BookingStatusType = typeof BookingStatus[keyof typeof BookingStatus]
+
+type BookingWithRelations = {
+  id: string
+  status: BookingStatusType
+  bookedAt: Date | string
+  service: { price?: string | null; category?: string }
+}
 
 interface SalesAnalysisProps {
   bookings: BookingWithRelations[]

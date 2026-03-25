@@ -47,7 +47,7 @@ export default function useLenis() {
 
     return () => {
       lenis.destroy()
-      ScrollTrigger.kill()
+      ScrollTrigger.getAll().forEach((t) => t.kill())
     }
   }, [])
 }

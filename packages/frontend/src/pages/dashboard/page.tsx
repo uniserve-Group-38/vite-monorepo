@@ -1,89 +1,67 @@
-
-import { headers } from "next/headers"
-
-import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useSession } from "@/lib/auth-client"
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import type { Prisma, Service } from "@/lib/generated/prisma/client"
-import { BookingStatus, Role as RoleEnum } from "@/lib/generated/prisma/client"
 import { FinancialSummary } from "@/components/financial-summary"
-import { TrendingUp, Users } from "lucide-react"
+import { TrendingUp, Users, Loader2 } from "lucide-react"
 
+type DashboardData = {
+  stats: {
+    today: number
+    week: number
+    month: number
+    year: number
+    total: number
+  }
+  bookings: Array<{
+    id: string
+    status: string
+    service: { title: string }
+    student: { name: string; email: string; image: string | null }
+    conversation: { id: string } | null
+  }>
+}
 
-export const dynamic = "force-dynamic"
+export default function ProviderDashboardPage() {
+  const navigate = useNavigate()
+  const { data: session, isPending } = useSession()
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
 
-export default async function ProviderDashboardPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  useEffect(() => {
+    if (isPending) return
+    if (!session?.user) {
+      navigate("/auth/sign-in")
+      return
+    }
+    const role = (session.user as { role?: string }).role
+    if (role !== "PROVIDER") {
+      navigate("/")
+      return
+    }
 
-  if (!session) {
-    window.location.href = "/auth/sign-in"
+    fetch(`${import.meta.env.VITE_API_URL}/api/provider/dashboard`, {
+      credentials: "include",
+    })
+      .then((r) => r.json())
+      .then((d) => { setData(d); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [session, isPending, navigate])
+
+  if (isPending || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-lime-500" />
+      </div>
+    )
   }
 
-  const role = (session.user as { role?: string }).role
-  if (role !== RoleEnum.PROVIDER) {
-    window.location.href = "/"
-  }
-
-  const userId = session.user.id
-
-  // Fetch recordings for financial summary
-  const transactions = await prisma.transaction.findMany({
-    where: {
-      providerId: userId,
-      status: "paid",
-    },
-  })
-
-  // --- Financial Stats Aggregation ---
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const startOfWeek = new Date(now)
-  startOfWeek.setDate(now.getDate() - now.getDay())
-  startOfWeek.setHours(0, 0, 0, 0)
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-  const startOfYear = new Date(now.getFullYear(), 0, 1)
-
-  const stats = {
-    today: 0,
-    week: 0,
-    month: 0,
-    year: 0,
-    total: 0
-  }
-
-  transactions.forEach(tx => {
-    const amount = tx.providerEarnings
-    const paidAt = tx.paidAt ? new Date(tx.paidAt) : new Date(tx.createdAt)
-    
-    stats.total += amount
-    if (paidAt >= today) stats.today += amount
-    if (paidAt >= startOfWeek) stats.week += amount
-    if (paidAt >= startOfMonth) stats.month += amount
-    if (paidAt >= startOfYear) stats.year += amount
-  })
-
-
-  const bookings = await prisma.booking.findMany({
-    where: {
-      providerId: userId,
-      status: BookingStatus.PENDING,
-    },
-    include: { 
-      student: true, 
-      service: true,
-      conversation: {
-        select: { id: true }
-      }
-    },
-    orderBy: { bookedAt: "desc" },
-  })
-
+  const bookings = data?.bookings ?? []
+  const stats = data?.stats ?? { today: 0, week: 0, month: 0, year: 0, total: 0 }
 
   return (
     <main className="px-4 py-6 md:px-10 md:py-10">
@@ -102,8 +80,7 @@ export default async function ProviderDashboardPage() {
                 </span>
               </h1>
               <p className="mt-2 max-w-xl text-sm font-medium text-foreground/70">
-                Manage students who have booked your services, chat with them, and mark
-                services as completed
+                Manage students who have booked your services, chat with them, and mark services as completed
               </p>
             </div>
           </div>

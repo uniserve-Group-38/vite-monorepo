@@ -1,76 +1,58 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-;
-import { headers } from "next/headers";
-import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { MarkAllReadOnView } from "../../chat/mark-all-read-on-view";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useSession } from "@/lib/auth-client"
+import { Link } from "react-router-dom"
+import { Card, CardContent } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, Loader2 } from "lucide-react"
+import { MarkAllReadOnView } from "../../chat/mark-all-read-on-view"
 
-export const dynamic = "force-dynamic";
+type Conversation = {
+  id: string
+  updatedAt: string
+  booking: {
+    studentId: string
+    providerId: string
+    student: { id: string; name: string; image: string | null }
+    provider: { id: string; name: string; image: string | null }
+    service: { title: string }
+  }
+  messages: Array<{ content: string; createdAt: string }>
+}
 
-export default async function DashboardChatPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+export default function DashboardChatPage() {
+  const navigate = useNavigate()
+  const { data: session, isPending } = useSession()
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [loading, setLoading] = useState(true)
 
-  if (!session?.user) {
-    window.location.href = "/auth/sign-in";
+  useEffect(() => {
+    if (isPending) return
+    if (!session?.user) {
+      navigate("/auth/sign-in")
+      return
+    }
+
+    fetch(`${import.meta.env.VITE_API_URL}/api/chat/conversations?role=provider`, {
+      credentials: "include",
+    })
+      .then((r) => r.json())
+      .then((d) => { setConversations(Array.isArray(d) ? d : d.conversations ?? []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [session, isPending, navigate])
+
+  if (isPending || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin" />
+      </div>
+    )
   }
 
-  const userId = session.user.id;
+  const userId = session?.user?.id ?? ""
 
-  // Find all conversations where the user is the provider (Service Provider Portal)
-  const conversations = await prisma.conversation.findMany({
-    where: {
-      booking: {
-        providerId: userId,
-      },
-    },
-    include: {
-      booking: {
-        include: {
-          student: {
-            select: { id: true, name: true, image: true },
-          },
-          provider: {
-            select: { id: true, name: true, image: true },
-          },
-          service: {
-            select: { title: true },
-          },
-        },
-      },
-      messages: {
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 1, // Only get the latest message for the preview
-      },
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  });
-
-  // Deduplicate by chat partner: keep the conversation with the latest activity so inbox shows correct latest message
-  const uniqueConversationsMap = new Map<string, typeof conversations[0]>();
-  conversations.forEach((conv) => {
-    const partnerId = conv.booking.studentId === userId ? conv.booking.providerId : conv.booking.studentId;
-    const existing = uniqueConversationsMap.get(partnerId);
-    const convUpdated = new Date(conv.updatedAt).getTime();
-    const existingUpdated = existing ? new Date(existing.updatedAt).getTime() : 0;
-    if (!existing || convUpdated > existingUpdated) {
-      uniqueConversationsMap.set(partnerId, conv);
-    }
-  });
-  const dedupedConversations = Array.from(uniqueConversationsMap.values()).sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  );
-
-  if (dedupedConversations.length === 0) {
+  if (conversations.length === 0) {
     return (
       <div className="container mx-auto max-w-4xl py-8 px-4 md:px-10">
         <MarkAllReadOnView />
@@ -79,7 +61,7 @@ export default async function DashboardChatPage() {
           Chats would be available when your services are booked.
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -95,14 +77,12 @@ export default async function DashboardChatPage() {
         <h1 className="text-3xl font-black">Messages</h1>
       </div>
       <div className="space-y-6">
-        {dedupedConversations.map((conversation) => {
-          const { booking, messages } = conversation;
-          const isStudent = booking.studentId === userId;
-
-          // The "other" person in the chat
-          const chatPartner = isStudent ? booking.provider : booking.student;
-          const partnerRole = isStudent ? "Provider" : "Student";
-          const latestMessage = messages[0];
+        {conversations.map((conversation) => {
+          const { booking, messages } = conversation
+          const isStudent = booking.studentId === userId
+          const chatPartner = isStudent ? booking.provider : booking.student
+          const partnerRole = isStudent ? "Provider" : "Student"
+          const latestMessage = messages[0]
 
           return (
             <Link key={conversation.id} to={`/dashboard/chat/${conversation.id}`} className="block">
@@ -116,29 +96,18 @@ export default async function DashboardChatPage() {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-2">
-                      <h3 className="font-black text-lg truncate">
-                        {chatPartner.name}
-                      </h3>
+                      <h3 className="font-black text-lg truncate">{chatPartner.name}</h3>
                       {latestMessage && (
                         <span className="text-xs font-black text-muted-foreground whitespace-nowrap ml-2">
-                          {new Date(latestMessage.createdAt).toLocaleDateString(
-                            undefined,
-                            {
-                              day: "numeric",
-                              month: "short",
-                            }
-                          )}
+                          {new Date(latestMessage.createdAt).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
                         </span>
                       )}
                     </div>
                     <div className="flex justify-between text-sm items-center">
                       <p className="text-muted-foreground font-bold truncate max-w-[75%]">
-                        {latestMessage
-                          ? latestMessage.content
-                          : `New conversation regarding: ${booking.service.title}`}
+                        {latestMessage ? latestMessage.content : `New conversation regarding: ${booking.service.title}`}
                       </p>
-                      <span className={`text-[10px] font-black px-2 py-1 rounded-full border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${isStudent ? "bg-purple-200" : "bg-cyan-200"
-                        }`}>
+                      <span className={`text-[10px] font-black px-2 py-1 rounded-full border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${isStudent ? "bg-purple-200" : "bg-cyan-200"}`}>
                         {partnerRole}
                       </span>
                     </div>
@@ -146,9 +115,9 @@ export default async function DashboardChatPage() {
                 </CardContent>
               </Card>
             </Link>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

@@ -1,12 +1,10 @@
-    "use client";
-
 import { useEffect, useState, Suspense } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 function PaymentCallbackContent() {
   const navigate = useNavigate();
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const reference = searchParams.get("reference");
   const [status, setStatus] = useState<"loading" | "success" | "failed">(
     reference ? "loading" : "failed"
@@ -20,7 +18,6 @@ function PaymentCallbackContent() {
 
         if (data.success && data.status === "success") {
           setStatus("success");
-          // Redirect to dashboard after 3 seconds
           setTimeout(() => {
             navigate("/dashboard/bookings");
           }, 3000);
@@ -34,10 +31,9 @@ function PaymentCallbackContent() {
     }
 
     if (reference) {
-      // Verify payment
       verifyPayment(reference);
     }
-  }, [reference, router]);
+  }, [reference, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-purple-100 p-4">

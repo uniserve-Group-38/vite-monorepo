@@ -1,10 +1,6 @@
-"use client"
-
 import { useState } from "react"
-import { submitAdminReply } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { Send, CheckCircle } from "lucide-react"
 import { useNavigate } from "react-router-dom"
@@ -23,16 +19,28 @@ export function SupportReplyForm({ messageId, existingReply }: SupportReplyFormP
         e.preventDefault()
         setIsSubmitting(true)
 
-        const result = await submitAdminReply(messageId, replyText)
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/support/${messageId}/reply`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ reply: replyText }),
+            })
+            const result = await res.json()
 
-        if (result.error) {
-            toast.error(result.error)
+            if (!res.ok || result.error) {
+                toast.error(result.error ?? "Failed to submit reply.")
+                setIsSubmitting(false)
+            } else {
+                toast.success("Reply sent successfully! Status changed to Resolved.")
+                setReplyText("")
+                setIsSubmitting(false)
+                // Navigate to reload the page state
+                navigate(0)
+            }
+        } catch {
+            toast.error("Network error. Please try again.")
             setIsSubmitting(false)
-        } else {
-            toast.success("Reply sent successfully! Status changed to Resolved.")
-            setReplyText("")
-            setIsSubmitting(false)
-            router.refresh()
         }
     }
 

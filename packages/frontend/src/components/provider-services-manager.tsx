@@ -1,10 +1,22 @@
+```
 "use client"
 
 import { useState } from "react"
 import { format } from "date-fns"
 import { Plus, Pencil, Trash2, Clock, DollarSign, Tag, Loader2, Image as ImageIcon, Star, Check, ArrowRight } from "lucide-react"
 
-import type { Prisma } from "@/lib/generated/prisma/client"
+type Service = {
+  id: string
+  title: string
+  description: string
+  category: string
+  price: string | null
+  status: string
+  imageUrl: string | null
+  operatingHours: string | null
+  createdAt: Date | string
+  providerId: string
+}
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {

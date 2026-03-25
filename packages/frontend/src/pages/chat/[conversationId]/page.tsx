@@ -1,87 +1,74 @@
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import ChatRoom from "./ChatRoom";
-;
-import { headers } from "next/headers";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
+import { useSession } from "@/lib/auth-client"
+import ChatRoom from "./ChatRoom"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, Loader2 } from "lucide-react"
+import { Link } from "react-router-dom"
 
-export const dynamic = "force-dynamic";
+type ChatMessage = {
+  id: string
+  senderId: string
+  message: string
+  timestamp: string
+  readAt: string | null
+}
 
-export default async function ChatPage({
-  params,
-}: {
-  params: Promise<{ conversationId: string }>;
-}) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+type ConversationData = {
+  conversationId: string
+  currentUserId: string
+  studentId: string
+  partnerName: string
+  initialMessages: ChatMessage[]
+}
 
-  if (!session?.user) {
-    window.location.href = "/auth/sign-in";
+export default function ChatPage() {
+  const navigate = useNavigate()
+  const { conversationId } = useParams<{ conversationId: string }>()
+  const { data: session, isPending } = useSession()
+  const [data, setData] = useState<ConversationData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (isPending) return
+    if (!session?.user) {
+      navigate("/auth/sign-in")
+      return
+    }
+    if (!conversationId) {
+      navigate("/chat")
+      return
+    }
+
+    fetch(`${import.meta.env.VITE_API_URL}/api/chat/${conversationId}`, {
+      credentials: "include",
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error("Not found or no permission")
+        return r.json()
+      })
+      .then((d) => { setData(d); setLoading(false) })
+      .catch((e) => { setError(e.message); setLoading(false) })
+  }, [session, isPending, navigate, conversationId])
+
+  if (isPending || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin" />
+      </div>
+    )
   }
 
-  const { conversationId } = await params;
-
-  // Retrieve the conversation and verify the user belongs to the associated booking
-  const conversation = await prisma.conversation.findUnique({
-    where: { id: conversationId },
-    include: {
-      booking: {
-        include: {
-          student: { select: { id: true, name: true } },
-          provider: { select: { id: true, name: true } },
-        },
-      },
-      messages: {
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-    },
-  });
-
-  if (!conversation || !conversation.booking) {
-    return window.location.href = "/404";
-  }
-
-  // Check if current user is either the student or the provider
-  const isParticipant =
-    conversation.booking.studentId === session.user.id ||
-    conversation.booking.providerId === session.user.id;
-
-  if (!isParticipant) {
+  if (error || !data) {
     return (
       <div className="flex items-center justify-center h-screen">
         <p className="text-muted-foreground">
-          You do not have permission to view this conversation.
+          {error ?? "You do not have permission to view this conversation."}
         </p>
       </div>
-    );
+    )
   }
-
-  // Extract the stored messages from the DB (include readAt for read/unread indicators)
-  type ChatMessage = {
-    id: string;
-    senderId: string;
-    message: string;
-    timestamp: string;
-    readAt: string | null;
-  };
-
-  const initialMessages: ChatMessage[] = conversation.messages.map((msg) => ({
-    id: msg.id,
-    senderId: msg.senderId,
-    message: msg.content,
-    timestamp: msg.createdAt.toISOString(),
-    readAt: msg.readAt?.toISOString() ?? null,
-  }));
-
-  const isCurrentUserStudent = conversation.booking.studentId === session.user.id;
-  const partnerName = isCurrentUserStudent
-    ? conversation.booking.provider.name ?? "Provider"
-    : conversation.booking.student.name ?? "Student";
 
   return (
     <div className="container mx-auto max-w-4xl py-8">
@@ -91,14 +78,14 @@ export default async function ChatPage({
           Back to Messages
         </Button>
       </Link>
-      <h1 className="text-2xl font-bold mb-6">Chat with {partnerName}</h1>
+      <h1 className="text-2xl font-bold mb-6">Chat with {data.partnerName}</h1>
       <ChatRoom
-        conversationId={conversationId}
-        currentUserId={session.user.id}
-        studentId={conversation.booking.studentId}
-        initialMessages={initialMessages}
-        partnerName={partnerName}
+        conversationId={data.conversationId}
+        currentUserId={data.currentUserId}
+        studentId={data.studentId}
+        initialMessages={data.initialMessages}
+        partnerName={data.partnerName}
       />
     </div>
-  );
+  )
 }

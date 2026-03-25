@@ -1,16 +1,18 @@
-"use client"
-
 import { useEffect, useRef, useState } from "react"
 import { Send } from "lucide-react"
 
-import type { Prisma } from "@/lib/generated/prisma/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-type ConversationWithMessages = Prisma.ConversationGetPayload<{
-  include: { messages: true }
-}>
+type ConversationWithMessages = {
+  messages: Array<{
+    id: string
+    content: string
+    senderId: string
+    createdAt: Date | string
+  }>
+}
 
 interface ConversationShellProps {
   bookingId: string

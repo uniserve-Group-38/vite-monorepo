@@ -1,39 +1,37 @@
-
-import { headers } from "next/headers"
-import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useSession } from "@/lib/auth-client"
 import { StudentBookings } from "@/components/student-bookings"
+import { Loader2 } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+export default function StudentBookingsPage() {
+  const navigate = useNavigate()
+  const { data: session, isPending } = useSession()
+  const [bookings, setBookings] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-export default async function StudentBookingsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  useEffect(() => {
+    if (isPending) return
+    if (!session?.user) {
+      navigate("/auth/sign-in")
+      return
+    }
 
-  if (!session?.user) {
-    window.location.href = "/auth/sign-in"
+    fetch(`${import.meta.env.VITE_API_URL}/api/bookings/my`, {
+      credentials: "include",
+    })
+      .then((r) => r.json())
+      .then((d) => { setBookings(Array.isArray(d) ? d : d.bookings ?? []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [session, isPending, navigate])
+
+  if (isPending || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin" />
+      </div>
+    )
   }
-
-  const userId = session.user.id
-
-  // Fetch bookings where user is the STUDENT only
-  const bookings = await prisma.booking.findMany({
-    where: {
-      studentId: userId,  // Only bookings where I'm the student
-    },
-    include: {
-      student: true,
-      service: true,
-      provider: true,
-      conversation: { select: { id: true } },
-      transactions: true,
-    },
-    orderBy: [
-      { status: "desc" },
-      { bookedAt: "desc" },
-    ],
-  })
 
   return (
     <main className="px-4 py-6 md:px-10 md:py-10">
@@ -47,7 +45,7 @@ export default async function StudentBookingsPage() {
             View your service bookings and make payments
           </p>
         </header>
-        <StudentBookings bookings={bookings as any} currentUserId={userId} />
+        <StudentBookings bookings={bookings} currentUserId={session?.user?.id ?? ""} />
       </section>
     </main>
   )

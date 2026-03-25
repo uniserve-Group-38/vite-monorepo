@@ -1,5 +1,3 @@
-"use client";
-
 import { useSession } from "@/lib/auth-client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -17,7 +15,7 @@ export function RedirectIfLoggedIn() {
     if (session?.user) {
       navigate("/services");
     }
-  }, [session?.user, isPending, router]);
+  }, [session?.user, isPending, navigate]);
 
   return null;
 }

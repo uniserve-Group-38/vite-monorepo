@@ -1,6 +1,3 @@
-
-"use client"
-
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -11,7 +8,7 @@ interface CategoryFilterProps {
 
 export function CategoryFilter({ categories }: CategoryFilterProps) {
     const navigate = useNavigate()
-    const searchParams = useSearchParams()
+    const [searchParams] = useSearchParams()
     const currentCategory = searchParams.get("category")
 
     const handleSelect = (category: string | null) => {

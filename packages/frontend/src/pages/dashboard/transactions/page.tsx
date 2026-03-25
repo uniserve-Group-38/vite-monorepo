@@ -1,105 +1,56 @@
-import { headers } from "next/headers"
-
-import { prisma } from "@/lib/prisma"
-import { auth } from "@/lib/auth"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useSession } from "@/lib/auth-client"
 import { FinancialSummary } from "@/components/financial-summary"
 import { ServiceStatsGrid } from "@/components/service-stats-grid"
-import { Role as RoleEnum } from "@/lib/generated/prisma/client"
-import { Receipt, CreditCard, TrendingUp, Filter } from "lucide-react"
+import { Receipt, CreditCard, TrendingUp, Filter, Loader2 } from "lucide-react"
 
-export const dynamic = "force-dynamic"
+type Stats = {
+  today: number
+  week: number
+  month: number
+  year: number
+  total: number
+}
 
-export default async function TransactionsPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+export default function TransactionsPage() {
+  const navigate = useNavigate()
+  const { data: session, isPending } = useSession()
+  const [stats, setStats] = useState<Stats>({ today: 0, week: 0, month: 0, year: 0, total: 0 })
+  const [serviceStats, setServiceStats] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  if (!session) {
-    window.location.href = "/auth/sign-in"
-  }
-
-  const role = (session.user as { role?: string }).role
-  if (role !== RoleEnum.PROVIDER) {
-    window.location.href = "/"
-  }
-
-  const userId = session.user.id
-
-  // Fetch all transactions for this provider
-  const transactions = await prisma.transaction.findMany({
-    where: {
-      providerId: userId,
-      status: "paid", // Only count successful payments
-    },
-    include: {
-      booking: {
-        include: {
-          service: true,
-          student: {
-            select: { id: true, name: true, email: true, image: true }
-          }
-        }
-      }
-    },
-    orderBy: { paidAt: "desc" },
-  })
-
-  // --- Financial Stats Aggregation ---
-  const now = new Date()
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const startOfWeek = new Date(now)
-  startOfWeek.setDate(now.getDate() - now.getDay())
-  startOfWeek.setHours(0, 0, 0, 0)
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-  const startOfYear = new Date(now.getFullYear(), 0, 1)
-
-  const stats = {
-    today: 0,
-    week: 0,
-    month: 0,
-    year: 0,
-    total: 0
-  }
-
-  transactions.forEach(tx => {
-    const amount = tx.providerEarnings
-    const paidAt = tx.paidAt ? new Date(tx.paidAt) : new Date(tx.createdAt)
-    
-    stats.total += amount
-    if (paidAt >= today) stats.today += amount
-    if (paidAt >= startOfWeek) stats.week += amount
-    if (paidAt >= startOfMonth) stats.month += amount
-    if (paidAt >= startOfYear) stats.year += amount
-  })
-
-  // --- Service Stats Grouping ---
-  const serviceMap = new Map<string, any>()
-
-  transactions.forEach(tx => {
-    const service = tx.booking.service
-    if (!serviceMap.has(service.id)) {
-      serviceMap.set(service.id, {
-        id: service.id,
-        title: service.title,
-        category: service.category,
-        totalBookings: 0,
-        totalEarnings: 0,
-        transactions: []
-      })
+  useEffect(() => {
+    if (isPending) return
+    if (!session?.user) {
+      navigate("/auth/sign-in")
+      return
+    }
+    const role = (session.user as { role?: string }).role
+    if (role !== "PROVIDER") {
+      navigate("/")
+      return
     }
 
-    const sStat = serviceMap.get(service.id)
-    sStat.totalBookings += 1
-    sStat.totalEarnings += tx.providerEarnings
-    sStat.transactions.push({
-      id: tx.id,
-      amount: tx.providerEarnings,
-      date: tx.paidAt || tx.createdAt,
-      student: tx.booking.student
+    fetch(`${import.meta.env.VITE_API_URL}/api/provider/transactions`, {
+      credentials: "include",
     })
-  })
+      .then((r) => r.json())
+      .then((d) => {
+        setStats(d.stats ?? { today: 0, week: 0, month: 0, year: 0, total: 0 })
+        setServiceStats(d.serviceStats ?? [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [session, isPending, navigate])
 
-  const serviceStats = Array.from(serviceMap.values())
+  if (isPending || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-lime-500" />
+      </div>
+    )
+  }
 
   return (
     <main className="px-4 py-6 md:px-10 md:py-10">
@@ -116,7 +67,7 @@ export default async function TransactionsPage() {
                 Revenue <span className="text-lime-500">Summary</span>
               </h1>
               <p className="mt-2 max-w-xl text-sm font-bold text-foreground/60">
-                Track your earnings across all services. Taps cards for detailed student payment history.
+                Track your earnings across all services. Tap cards for detailed student payment history.
               </p>
             </div>
           </div>
@@ -149,4 +100,3 @@ export default async function TransactionsPage() {
     </main>
   )
 }
-

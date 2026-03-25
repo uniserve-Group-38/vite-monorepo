@@ -1,25 +1,21 @@
-"use client"
-
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import { format } from "date-fns"
 import { MessageCircle, CheckCircle2, Clock3, DollarSign } from "lucide-react"
 
-import { BookingStatus } from "@/lib/generated/prisma/client"
-import type { Prisma } from "@/lib/generated/prisma/client"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+const BookingStatus = { PENDING: "PENDING", ATTENDED: "ATTENDED" } as const
+type BookingStatusType = typeof BookingStatus[keyof typeof BookingStatus]
 
-type BookingWithRelations = Prisma.BookingGetPayload<{
-  include: { 
-    student: true
-    service: true
-    provider: true
-    conversation: { select: { id: true } }
-    transactions: true
-  }
-}>
+type BookingWithRelations = {
+  id: string
+  status: BookingStatusType
+  bookedAt: Date | string
+  studentId: string
+  service: { title: string; price?: string | null; category?: string }
+  provider: { name: string }
+  conversation: { id: string } | null
+  transactions?: Array<{ status: string }>
+}
 
 interface StudentBookingsProps {
   bookings: BookingWithRelations[]
