@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { submitSupportMessage } from "./actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,17 +14,31 @@ export default function SupportPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
 
-    async function handleSubmit(formData: FormData) {
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault()
         setIsSubmitting(true)
+        
+        const formData = new FormData(e.currentTarget)
+        const subject = formData.get("subject") as string
+        const message = formData.get("message") as string
 
-        const result = await submitSupportMessage(formData)
-
-        if (result.error) {
-            toast.error(result.error)
-            setIsSubmitting(false)
-        } else {
-            toast.success("Message sent successfully")
-            setIsSuccess(true)
+        try {
+            const res = await fetch(import.meta.env.VITE_API_URL + "/api/support", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subject, message })
+            })
+            
+            if (!res.ok) {
+                const data = await res.json()
+                toast.error(data.error || "Failed to submit request")
+            } else {
+                toast.success("Message sent successfully")
+                setIsSuccess(true)
+            }
+        } catch (error: any) {
+            toast.error(error.message)
+        } finally {
             setIsSubmitting(false)
         }
     }
@@ -83,7 +96,7 @@ export default function SupportPage() {
                                 </Button>
                             </div>
                         ) : (
-                            <form action={handleSubmit} className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="subject" className="font-bold text-base">Subject</Label>
                                     <Input 

@@ -1,21 +1,51 @@
-;
-import { Link } from "react-router-dom";
-import { prisma } from "@/lib/prisma";
+import { useState, useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowLeft, ExternalLink, Mail } from "lucide-react";
+import { CheckCircle2, ArrowLeft, ExternalLink, Mail, Loader2 } from "lucide-react";
 
-export default async function AnnouncementDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function AnnouncementDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   
-  const announcement = await prisma.announcement.findUnique({
-    where: { id },
-  });
+  const [announcement, setAnnouncement] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnnouncement = async () => {
+      if (!id) return;
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/announcements/${id}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            navigate("/404");
+            return;
+          }
+          throw new Error("Failed to fetch announcement");
+        }
+        const data = await response.json();
+        setAnnouncement(data);
+      } catch (error) {
+        console.error("Error fetching announcement:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnnouncement();
+  }, [id, navigate]);
   
-  if (!announcement || !announcement.isActive || !announcement.isVerified) {
-    window.location.href = "/404";
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
+      </div>
+    );
   }
+
+  if (!announcement) return null;
   
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -106,4 +136,4 @@ export default async function AnnouncementDetailPage({ params }: { params: Promi
       </Card>
     </div>
   );
-}
+}

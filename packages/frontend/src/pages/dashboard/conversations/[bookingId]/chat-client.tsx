@@ -3,14 +3,18 @@
 import { useState, useRef, useEffect } from "react"
 import { Send } from "lucide-react"
 import { format } from "date-fns"
-
-import type { Prisma } from "@/lib/generated/prisma/client"
-import { sendMessage } from "@/app/actions/chat"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-type MessageWithSender = Prisma.MessageGetPayload<{ include: { sender: true } }>
+type MessageWithSender = {
+  id: string
+  content: string
+  senderId: string
+  conversationId: string
+  createdAt: Date | string
+  sender: any
+}
 
 interface ChatClientProps {
   bookingId: string
@@ -66,10 +70,17 @@ export function ChatClient({
 
     setMessages((prev) => [...prev, optimisticMessage])
 
-    const result = await sendMessage(bookingId, content)
-
-    if (result.error) {
-       console.error(result.error)
+    try {
+      const res = await fetch(import.meta.env.VITE_API_URL + `/api/conversations/${bookingId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content })
+      })
+      if (!res.ok) {
+        throw new Error("Failed to send message")
+      }
+    } catch (err) {
+       console.error(err)
        // Rollback on fail
        setMessages((prev) => prev.filter(m => m.id !== optimisticMessage.id))
     }

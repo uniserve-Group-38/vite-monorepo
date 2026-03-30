@@ -1,18 +1,11 @@
 import { AccountView } from "@daveyplate/better-auth-ui"
-import { accountViewPaths } from "@daveyplate/better-auth-ui/server"
+import { useParams } from "react-router-dom"
 
-export const dynamicParams = false
+export default function AccountPage() {
+    const { path } = useParams<{ path: string }>()
 
-export function generateStaticParams() {
-    return Object.values(accountViewPaths).map((path) => ({ path }))
-}
+    if (!path) return null
 
-export default async function AccountPage({
-    params
-}: {
-    params: Promise<{ path: string }>
-}) {
-    const { path } = await params
 
     return (
         <main className="container self-center p-4  md:p-6">

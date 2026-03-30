@@ -1,37 +1,53 @@
 import { getImageKitUrl } from "@/lib/imagekit/config";
-import { Link } from "react-router-dom";
-import { prisma } from "@/lib/prisma";
+import { Link, useSearchParams } from "react-router-dom";
+import { useState, useEffect, Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2 } from "lucide-react";
-import { Suspense } from "react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import SearchBar from "./search-bar";
 
 const CATEGORIES = ["All", "Events", "Scholarships", "Tuition", "Internships", "Deadlines", "Academic"];
 
-interface PageProps {
-  searchParams: Promise<{ category?: string; search?: string }>;
+interface Announcement {
+  id: string;
+  title: string;
+  summary: string | null;
+  category: string;
+  isVerified: boolean;
+  createdAt: string;
 }
 
-export default async function AnnouncementsPage({ searchParams }: PageProps) {
-  const { category, search } = await searchParams;
+export default function AnnouncementsPage() {
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get("category");
+  const search = searchParams.get("search");
   const activeCategory = category || "All";
 
-  const announcements = await prisma.announcement.findMany({
-    where: {
-      isActive: true,
-      isVerified: true,
-      ...(activeCategory !== "All" && { category: activeCategory }),
-      ...(search && {
-        title: {
-          contains: search,
-          mode: "insensitive",
-        },
-      }),
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+  const [allAnnouncements, setAllAnnouncements] = useState<Announcement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/announcements`);
+        if (!response.ok) throw new Error("Failed to fetch announcements");
+        const data = await response.json();
+        setAllAnnouncements(data);
+      } catch (error) {
+        console.error("Error fetching announcements:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
+
+  const filteredAnnouncements = allAnnouncements.filter((item) => {
+    const matchesCategory = activeCategory === "All" || item.category === activeCategory;
+    const matchesSearch = !search || item.title.toLowerCase().includes(search.toLowerCase());
+    return matchesCategory && matchesSearch;
   });
 
   return (
@@ -88,14 +104,19 @@ export default async function AnnouncementsPage({ searchParams }: PageProps) {
 
       {/* Results count */}
       <p className="text-sm font-bold text-muted-foreground mb-4">
-        {announcements.length} announcement{announcements.length !== 1 ? "s" : ""} found
-        {activeCategory !== "All" && ` in ${activeCategory}`}
-        {search && ` matching "${search}"`}
+        {isLoading 
+            ? "Loading..." 
+            : `${filteredAnnouncements.length} announcement${filteredAnnouncements.length !== 1 ? "s" : ""} found${activeCategory !== "All" ? ` in ${activeCategory}` : ""}${search ? ` matching "${search}"` : ""}`
+        }
       </p>
 
       {/* Announcements List */}
-      {announcements.length === 0 ? (
-        <Card className="bg-purple-100">
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      ) : filteredAnnouncements.length === 0 ? (
+        <Card className="bg-purple-100 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <CardContent className="pt-6">
             <p className="text-center font-bold">
               No announcements found {activeCategory !== "All" && `in ${activeCategory}`}. Check back soon!
@@ -104,18 +125,18 @@ export default async function AnnouncementsPage({ searchParams }: PageProps) {
         </Card>
       ) : (
         <div className="space-y-4">
-          {announcements.map((announcement) => (
+          {filteredAnnouncements.map((announcement) => (
             <Link
               key={announcement.id}
               to={`/announcements/${announcement.id}`}
               className="block"
             >
-              <Card className="cursor-pointer hover:-translate-y-1 transition-all">
+              <Card className="cursor-pointer border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary" className="bg-purple-200">{announcement.category}</Badge>
+                        <Badge variant="secondary" className="bg-purple-200 border-2 border-black font-black">{announcement.category}</Badge>
                         {announcement.isVerified && (
                           <div className="flex items-center gap-1">
                             <div className="bg-green-300 border-2 border-black px-2 py-0.5 text-xs font-black flex items-center gap-1">
@@ -125,9 +146,9 @@ export default async function AnnouncementsPage({ searchParams }: PageProps) {
                           </div>
                         )}
                       </div>
-                      <CardTitle className="text-xl">{announcement.title}</CardTitle>
+                      <CardTitle className="text-xl font-black">{announcement.title}</CardTitle>
                     </div>
-                    <time className="text-sm font-bold text-muted-foreground whitespace-nowrap bg-yellow-300 border-2 border-black px-2 py-1">
+                    <time className="text-sm font-bold text-muted-foreground whitespace-nowrap bg-yellow-300 border-2 border-black px-2 py-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                       {new Date(announcement.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -136,7 +157,7 @@ export default async function AnnouncementsPage({ searchParams }: PageProps) {
                     </time>
                   </div>
                   {announcement.summary && (
-                    <CardDescription className="mt-2 line-clamp-2">
+                    <CardDescription className="mt-2 line-clamp-2 font-bold text-black/80">
                       {announcement.summary}
                     </CardDescription>
                   )}
@@ -148,4 +169,4 @@ export default async function AnnouncementsPage({ searchParams }: PageProps) {
       )}
     </div>
   );
-}
+}

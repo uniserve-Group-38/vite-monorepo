@@ -1,61 +1,63 @@
-import { prisma } from "@/lib/prisma"
+import { useState, useEffect } from "react"
+import { useSearchParams, Link } from "react-router-dom"
 import { ServiceCard } from "@/components/service-card"
 import { ServiceSearch } from "@/components/service-search"
 import { CategoryFilter } from "@/components/category-filter"
-import { Prisma } from "@/lib/generated/prisma/client"
+import { Loader2 } from "lucide-react"
 
-export const dynamic = 'force-dynamic'
-
-interface SearchParams {
-    q?: string
-    category?: string
-    page?: string
+interface ServiceProvider {
+    name: string
+    image: string | null
+    location: string | null
 }
 
-export default async function ServicesPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
-    const params = await searchParams
-    const query = params.q
-    const category = params.category
-    const page = parseInt(params.page || '1', 10)
-    const take = 6
-    const skip = (page - 1) * take
+interface Service {
+    id: string
+    title: string
+    description: string
+    category: string
+    status: string
+    price: string | null
+    imageUrl: string | null
+    provider: ServiceProvider
+}
 
-    // 1. Fetch distinct categories
-    const categoriesData = await prisma.service.findMany({
-        select: { category: true },
-        distinct: ['category'],
-        orderBy: { category: 'asc' },
-    })
-    const categories = categoriesData.map(c => c.category)
+export default function ServicesPage() {
+    const [searchParams] = useSearchParams()
+    const query = searchParams.get('q') || ''
+    const category = searchParams.get('category') || ''
+    const page = parseInt(searchParams.get('page') || '1', 10)
 
-    // 2. Build filter conditions
-    const where: Prisma.ServiceWhereInput = {
-        AND: [
-            // Search Filter
-            query ? {
-                OR: [
-                    { title: { contains: query, mode: 'insensitive' } },
-                    { description: { contains: query, mode: 'insensitive' } },
-                ]
-            } : {},
-            // Category Filter
-            category ? { category: { equals: category } } : {},
-        ]
-    }
+    const [services, setServices] = useState<Service[]>([])
+    const [categories, setCategories] = useState<string[]>([])
+    const [totalPages, setTotalPages] = useState(1)
+    const [isLoading, setIsLoading] = useState(true)
 
-    // 3. Fetch filtered services with pagination
-    const [services, totalServices] = await Promise.all([
-        prisma.service.findMany({
-            where,
-            include: { provider: true },
-            orderBy: { createdAt: 'desc' },
-            take,
-            skip,
-        }),
-        prisma.service.count({ where })
-    ])
+    useEffect(() => {
+        const fetchServices = async () => {
+            setIsLoading(true)
+            try {
+                const params = new URLSearchParams()
+                if (query) params.set('q', query)
+                if (category) params.set('category', category)
+                if (page > 1) params.set('page', page.toString())
 
-    const totalPages = Math.ceil(totalServices / take)
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/services?${params.toString()}`)
+                if (!response.ok) throw new Error('Failed to fetch services')
+                
+                const data = await response.json()
+                setServices(data.services || [])
+                setCategories(data.categories || [])
+                setTotalPages(data.totalPages || 1)
+            } catch (error) {
+                console.error("Error fetching services:", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchServices()
+    }, [query, category, page])
 
     return (
         <div className="min-h-screen bg-[#f3f4f6] py-12">
@@ -79,7 +81,11 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
                     <CategoryFilter categories={categories} />
                 </div>
 
-                {services.length === 0 ? (
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-32">
+                        <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
+                    </div>
+                ) : services.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                         <p className="font-black text-2xl mb-4">No services found.</p>
                         <p className="font-bold text-muted-foreground">
@@ -101,11 +107,7 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
                                 price={service.price}
                                 imageUrl={service.imageUrl}
                                 index={index}
-                                provider={{
-                                    name: service.provider.name,
-                                    image: service.provider.image,
-                                    location: service.provider.location,
-                                }}
+                                provider={service.provider}
                             />
                         ))}
                     </div>
@@ -116,12 +118,12 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
             {totalPages > 1 && (
                 <div className="flex justify-center items-center mt-16 gap-6 max-w-7xl mx-auto px-4">
                     {page > 1 ? (
-                        <a
-                            href={`/services?page=${page - 1}${query ? `&q=${query}` : ''}${category ? `&category=${category}` : ''}`}
+                        <Link
+                            to={`/services?page=${page - 1}${query ? `&q=${query}` : ''}${category ? `&category=${category}` : ''}`}
                             className="border-4 border-black bg-pink-300 px-6 py-2 font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
                         >
                             PREVIOUS
-                        </a>
+                        </Link>
                     ) : (
                         <div className="px-6 py-2 w-[130px] invisible"></div>
                     )}
@@ -131,12 +133,12 @@ export default async function ServicesPage({ searchParams }: { searchParams: Pro
                     </span>
 
                     {page < totalPages ? (
-                        <a
-                            href={`/services?page=${page + 1}${query ? `&q=${query}` : ''}${category ? `&category=${category}` : ''}`}
+                        <Link
+                            to={`/services?page=${page + 1}${query ? `&q=${query}` : ''}${category ? `&category=${category}` : ''}`}
                             className="border-4 border-black bg-cyan-300 px-6 py-2 font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
                         >
                             NEXT
-                        </a>
+                        </Link>
                     ) : (
                         <div className="px-6 py-2 w-[100px] invisible"></div>
                     )}

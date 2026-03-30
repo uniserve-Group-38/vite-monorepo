@@ -24,7 +24,7 @@ interface MessagePayload {
   id: string
   content: string
   senderId: string
-  createdAt: Date
+  createdAt: Date | string
 }
 
 export function ConversationShell({

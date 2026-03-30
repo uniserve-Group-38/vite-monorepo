@@ -1,19 +1,11 @@
 import { AuthView } from "@daveyplate/better-auth-ui"
-import { authViewPaths } from "@daveyplate/better-auth-ui/server"
-import { Link } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 
-export const dynamicParams = false
+export default function AuthPage() {
+    const { path } = useParams<{ path: string }>()
 
-export function generateStaticParams() {
-    return Object.values(authViewPaths).map((path) => ({ path }))
-}
+    if (!path) return null
 
-export default async function AuthPage({
-    params
-}: {
-    params: Promise<{ path: string }>
-}) {
-    const { path } = await params
 
     return (
         <main className="flex grow flex-col items-center justify-center gap-4 self-center p-4 md:p-6">

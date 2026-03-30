@@ -1,39 +1,54 @@
 
-import { prisma } from "@/lib/prisma"
+import { useState, useEffect } from "react"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MapPin, ArrowLeft, Clock } from "lucide-react"
-import { Link } from "react-router-dom"
+import { MapPin, ArrowLeft, Clock, Loader2 } from "lucide-react"
 
 import { ProviderServicesClient } from "@/components/provider-services-client"
 
-export const dynamic = 'force-dynamic'
+export default function ServiceDetailsPage() {
+    const { id } = useParams<{ id: string }>()
+    const navigate = useNavigate()
+    
+    const [service, setService] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
-interface PageProps {
-    params: Promise<{ id: string }>
-}
-
-export default async function ServiceDetailsPage({ params }: PageProps) {
-    const { id } = await params
-
-    // Fetch the clicked service with provider info
-    const service = await prisma.service.findUnique({
-        where: { id },
-        include: { 
-            provider: {
-                include: {
-                    servicesProvided: {
-                        orderBy: { createdAt: 'desc' }
+    useEffect(() => {
+        const fetchService = async () => {
+            if (!id) return
+            setIsLoading(true)
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/services/${id}`)
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        navigate("/404")
+                        return
                     }
+                    throw new Error('Failed to fetch service')
                 }
+                const data = await response.json()
+                setService(data)
+            } catch (error) {
+                console.error("Error fetching service:", error)
+            } finally {
+                setIsLoading(false)
             }
-        },
-    })
+        }
 
-    if (!service) {
-        window.location.href = "/404"
+        fetchService()
+    }, [id, navigate])
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
+            </div>
+        )
     }
+
+    if (!service) return null
 
     const provider = service.provider
 
@@ -112,7 +127,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                             <Avatar className="h-16 w-16 border-4 border-black">
                                 <AvatarImage src={provider.image || ""} alt={provider.name} />
                                 <AvatarFallback className="bg-yellow-300 font-black text-xl">
-                                    {provider.name.charAt(0).toUpperCase()}
+                                    {provider.name?.charAt(0).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
                             
@@ -130,26 +145,21 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                             <span>{provider.location}</span>
                                         </div>
                                     )}
-                                    <div className="flex items-center gap-1 font-bold">
-                                        <span className="bg-green-300 border-2 border-black px-2 py-1 text-xs">
-                                            {provider.servicesProvided.length} {provider.servicesProvided.length === 1 ? 'Service' : 'Services'}
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* All Services Section */}
+                    {/* All Services Section (Wait until API endpoint returns full services array, currently only returning a basic provider shape, so we will omit the list for now to prevent errors. A full provider API would be needed for the related services block) */}
                     <div>
                         <h2 className="text-2xl font-black mb-6 flex items-center gap-3">
                             <span className="bg-pink-300 border-4 border-black px-4 py-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] inline-block -rotate-1">
-                                ALL SERVICES
+                                THIS SERVICE
                             </span>
                         </h2>
 
                         <ProviderServicesClient 
-                            services={provider.servicesProvided} 
+                            services={[service]} 
                             providerId={provider.id} 
                             providerName={provider.name}
                             highlightedServiceId={service.id}

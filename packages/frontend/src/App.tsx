@@ -40,8 +40,8 @@ const Page_pages_terms_page_tsx = React.lazy(() => import('@/pages/terms/page.ts
 export function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light" disableTransitionOnChange>
-      <BetterAuthUIProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <BetterAuthUIProvider>
           <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
             <Routes>
             <Route path="/account/:path" element={<Page_pages_account__path__page_tsx />} />
@@ -79,9 +79,9 @@ export function App() {
 
             </Routes>
           </Suspense>
-        </BrowserRouter>
-      </BetterAuthUIProvider>
+        </BetterAuthUIProvider>
+      </BrowserRouter>
       <Toaster />
     </ThemeProvider>
-  );
+  )
 }

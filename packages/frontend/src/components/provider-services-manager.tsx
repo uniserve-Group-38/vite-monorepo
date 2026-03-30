@@ -1,6 +1,3 @@
-```
-"use client"
-
 import { useState } from "react"
 import { format } from "date-fns"
 import { Plus, Pencil, Trash2, Clock, DollarSign, Tag, Loader2, Image as ImageIcon, Star, Check, ArrowRight } from "lucide-react"
@@ -30,8 +27,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { CardContent } from "@/components/ui/card"
-
-type Service = Prisma.ServiceGetPayload<{}>
 
 interface ProviderServicesManagerProps {
   initialServices: Service[]

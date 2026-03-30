@@ -1,8 +1,5 @@
-import { useParams } from "react-router-dom";
-"use client";
-
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -19,21 +16,20 @@ interface Service {
   };
 }
 
-export default function BookServicePage({ params }: { params: Promise<{ serviceId: string }> }) {
+export default function BookServicePage() {
+  const { serviceId } = useParams<{ serviceId: string }>();
   const navigate = useNavigate();
-  const [serviceId, setServiceId] = useState<string>("");
   const [service, setService] = useState<Service | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isBooking, setIsBooking] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    params.then((p) => {
-      setServiceId(p.serviceId);
-      fetchService(p.serviceId);
-    });
+    if (serviceId) {
+      fetchService(serviceId);
+    }
     fetchCurrentUser();
-  }, []);
+  }, [serviceId]);
 
   async function fetchCurrentUser() {
     try {

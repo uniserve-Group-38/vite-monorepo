@@ -14,8 +14,6 @@ export default function BetterAuthUIProvider({
     <AuthUIProvider
       authClient={authClient}
       navigate={navigate}
-      pathname={location.pathname}
-      onSessionChange={() => {}}
     >
       {children}
     </AuthUIProvider>

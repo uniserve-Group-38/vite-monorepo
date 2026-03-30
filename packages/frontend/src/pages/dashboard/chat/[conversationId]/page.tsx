@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useSession } from "@/lib/auth-client"
-import ChatRoom from "../../chat/[conversationId]/ChatRoom"
+import ChatRoom from "../../../chat/[conversationId]/ChatRoom"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Loader2 } from "lucide-react"

@@ -2,6 +2,9 @@ import { Link } from "react-router-dom"
 import { useState } from "react"
 import { format } from "date-fns"
 import { MessageCircle, CheckCircle2, Clock3, DollarSign } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 const BookingStatus = { PENDING: "PENDING", ATTENDED: "ATTENDED" } as const
 type BookingStatusType = typeof BookingStatus[keyof typeof BookingStatus]

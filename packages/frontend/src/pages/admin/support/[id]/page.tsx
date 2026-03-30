@@ -1,25 +1,57 @@
-import { prisma } from "@/lib/prisma"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { Link } from "react-router-dom"
-import { ArrowLeft, User, Calendar, Tag } from "lucide-react"
+import { ArrowLeft, User, Calendar, Tag, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+export default function AdminMessageDetailPage() {
+    const { id } = useParams<{ id: string }>()
+    const navigate = useNavigate()
+    
+    const [message, setMessage] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
-export const dynamic = 'force-dynamic'
+    useEffect(() => {
+        const fetchMessage = async () => {
+            if (!id) return
+            setIsLoading(true)
+            try {
+                // requires admin auth, we assume the user is logged in and token is in localStorage
+                const token = localStorage.getItem("token")
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/support/${id}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                })
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        navigate("/404")
+                        return
+                    }
+                    throw new Error("Failed to fetch support message")
+                }
+                const data = await response.json()
+                setMessage(data)
+            } catch (error) {
+                console.error("Error fetching support message:", error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
 
-export default async function AdminMessageDetailPage({ params }: { params: { id: string } }) {
-    const { id } = await params
+        fetchMessage()
+    }, [id, navigate])
 
-    const message = await prisma.supportMessage.findUnique({
-        where: { id },
-        include: { user: true }
-    })
-
-    if (!message) {
-        window.location.href = "/404"
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
+            </div>
+        )
     }
+
+    if (!message) return null
 
     return (
         <div className="min-h-screen bg-gray-50/50">
@@ -45,7 +77,7 @@ export default async function AdminMessageDetailPage({ params }: { params: { id:
                             <div className="flex flex-wrap items-center gap-4 text-sm font-bold">
                                 <span className="flex items-center gap-1 bg-white px-2 py-1 border-2 border-black">
                                     <User className="w-4 h-4" />
-                                    {message.user.name} ({message.user.email})
+                                    {message.user?.name} ({message.user?.email})
                                 </span>
                                 <span className="flex items-center gap-1 bg-white px-2 py-1 border-2 border-black">
                                     <Calendar className="w-4 h-4" />
